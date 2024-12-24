@@ -13,7 +13,7 @@ resource "aws_vpc" "main" {
 
 resource "aws_subnet" "public_a" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.public_subnet_cidr
+  cidr_block              = var.public_subnet_cidr_a
   availability_zone       = "${var.region}a"
   map_public_ip_on_launch = true
   tags = {
@@ -23,7 +23,7 @@ resource "aws_subnet" "public_a" {
 
 resource "aws_subnet" "public_b" {
   vpc_id                  = aws_vpc.main.id
-  cidr_block              = var.public_subnet_cidr
+  cidr_block              = var.public_subnet_cidr_b
   availability_zone       = "${var.region}b"
   map_public_ip_on_launch = true
   tags = {
@@ -52,6 +52,13 @@ resource "aws_security_group" "ecs_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -61,7 +68,7 @@ resource "aws_security_group" "ecs_sg" {
 }
 
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "${var.app_name}-ecs-task-execution-role"
+  name = "${var.app_name}-ecs-task-execution-role-${random_id.unique_id.hex}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -78,6 +85,10 @@ resource "aws_iam_role" "ecs_task_execution_role" {
   })
 }
 
+resource "random_id" "unique_id" {
+  byte_length = 8
+}
+
 resource "aws_ecs_cluster" "cluster" {
   name = "${var.app_name}-cluster"
 }
@@ -92,7 +103,7 @@ resource "aws_ecs_task_definition" "task" {
 
   container_definitions = jsonencode([{
     name          = var.app_name
-    image         = "503561417736.dkr.ecr.us-east-1.amazonaws.com/app/repo:${var.image_tag}"
+    image         = "503561417736.dkr.ecr.${var.region}.amazonaws.com/app/repo:${var.image_tag}"
     essential     = true
     portMappings  = [{
       containerPort = 80
@@ -123,7 +134,7 @@ resource "aws_lb" "app_lb" {
 }
 
 resource "aws_lb_target_group" "app_target_group" {
-  name     = "${var.app_name}-tg"
+  name     = "${var.app_name}-tg-${random_id.unique_id.hex}"
   port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
