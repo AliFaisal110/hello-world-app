@@ -141,7 +141,7 @@ resource "aws_lb" "app_lb" {
 }
 
 resource "aws_lb_target_group" "app_target_group" {
-  name     = "${var.app_name}-tg-${random_id.unique_id.hex}"
+  name     = "${substr(var.app_name, 0, 20)}-tg-${random_id.unique_id.hex}"
   port     = 80
   protocol = "HTTP"
   vpc_id   = aws_vpc.main.id
