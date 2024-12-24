@@ -6,3 +6,4 @@ private_subnet_cidr = "10.0.2.0/24"
 instance_type = "t3.micro"
 desired_count = 1
 security_group_name = "ecs-security-group"
+image_tag = "latest"  # Add this line with the tag of your Docker image

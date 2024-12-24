@@ -44,3 +44,8 @@ variable "security_group_name" {
   type        = string
   default     = "ecs-security-group"
 }
+
+variable "image_tag" {
+  description = "Docker image tag"
+  type        = string
+}
