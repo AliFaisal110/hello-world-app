@@ -104,8 +104,8 @@ resource "aws_ecs_task_definition" "task" {
     image         = "public.ecr.aws/p8b9p5u4/app/repo:${var.image_tag}"
     essential     = true
     portMappings  = [{
-      containerPort = 80
-      hostPort      = 80
+      containerPort = 8080
+      hostPort      = 8080
       protocol      = "tcp"
     }]
   }])
@@ -125,7 +125,7 @@ resource "aws_ecs_service" "service" {
   load_balancer {
     target_group_arn = aws_lb_target_group.app_target_group.arn
     container_name   = var.app_name
-    container_port   = 80
+    container_port   = 8080
   }
   depends_on = [aws_lb_listener.app_listener]
 }
@@ -140,7 +140,7 @@ resource "aws_lb" "app_lb" {
 
 resource "aws_lb_target_group" "app_target_group" {
   name        = "${var.app_name}-tg-${substr(random_id.unique_id.hex, 0, 8)}"
-  port        = 80
+  port        = 8080
   protocol    = "HTTP"
   vpc_id      = aws_vpc.main.id
   target_type = "ip"
