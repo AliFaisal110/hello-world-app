@@ -32,7 +32,7 @@ jobs:
 
       - name: Build, tag, and push Docker image to Amazon ECR
         env:
-          ECR_REGISTRY: 503561417736.dkr.ecr.us-east-1.amazonaws.com
+          ECR_REGISTRY: public.ecr.aws/p8b9p5u4
           ECR_REPOSITORY: app/repo
           IMAGE_TAG: latest
         run: |

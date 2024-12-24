@@ -110,7 +110,7 @@ resource "aws_ecs_task_definition" "task" {
 
   container_definitions = jsonencode([{
     name          = var.app_name
-    image         = "503561417736.dkr.ecr.${var.region}.amazonaws.com/app/repo:${var.image_tag}"
+    image = "public.ecr.aws/p8b9p5u4/app/repo:${var.image_tag}"
     essential     = true
     portMappings  = [{
       containerPort = 80
