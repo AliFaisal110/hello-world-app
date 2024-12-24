@@ -40,6 +40,13 @@ resource "aws_subnet" "private" {
   }
 }
 
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = "${var.app_name}-internet-gateway"
+  }
+}
+
 resource "aws_security_group" "ecs_sg" {
   name        = var.security_group_name
   description = "Allow traffic to ECS containers"
