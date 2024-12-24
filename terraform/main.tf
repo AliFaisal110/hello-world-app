@@ -11,20 +11,30 @@ resource "aws_vpc" "main" {
   }
 }
 
-resource "aws_subnet" "public" {
+resource "aws_subnet" "public_a" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = var.public_subnet_cidr
   availability_zone       = "${var.region}a"
   map_public_ip_on_launch = true
   tags = {
-    Name = "${var.app_name}-public-subnet"
+    Name = "${var.app_name}-public-subnet-a"
+  }
+}
+
+resource "aws_subnet" "public_b" {
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_subnet_cidr
+  availability_zone       = "${var.region}b"
+  map_public_ip_on_launch = true
+  tags = {
+    Name = "${var.app_name}-public-subnet-b"
   }
 }
 
 resource "aws_subnet" "private" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = var.private_subnet_cidr
-  availability_zone       = "${var.region}b"
+  availability_zone       = "${var.region}a"
   tags = {
     Name = "${var.app_name}-private-subnet"
   }
@@ -98,7 +108,7 @@ resource "aws_ecs_service" "service" {
   desired_count   = var.desired_count
   launch_type     = "FARGATE"
   network_configuration {
-    subnets          = [aws_subnet.public.id]
+    subnets          = [aws_subnet.public_a.id, aws_subnet.public_b.id]
     security_groups  = [aws_security_group.ecs_sg.id]
     assign_public_ip = true
   }
@@ -109,7 +119,7 @@ resource "aws_lb" "app_lb" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.ecs_sg.id]
-  subnets            = [aws_subnet.public.id]
+  subnets            = [aws_subnet.public_a.id, aws_subnet.public_b.id]
 }
 
 resource "aws_lb_target_group" "app_target_group" {
